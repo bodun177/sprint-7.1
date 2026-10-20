@@ -1,20 +1,41 @@
+import { useState, useEffect } from 'react';
 import './App.css';
 
-// Note: please, do not change the next things:
-// - name of App prop,
-// - placeholder and aria-label values
-// - text on the button
-
 function App({ ws }) {
+  const [chat, setChat] = useState('');
+  const [nickname, setNickname] = useState('');
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    ws.onmessage = (event) => {
+      setChat((prev) => prev + event.data + '\n');
+    };
+  }, [ws]);
+
+  const sendMessage = () => {
+    ws.send(`${nickname}: ${message}`);
+    setMessage('');
+  };
+
   return (
     <div className="App">
       <h1>Web Sockets</h1>
       <div>
-        <textarea rows="30" cols="60" readOnly aria-label="chat" />
+        <textarea rows="30" cols="60" readOnly aria-label="chat" value={chat} />
       </div>
-      <input placeholder="Your nickname" size="11" />
-      <input placeholder="Type your message" size="40" />
-      <button>Send</button>
+      <input
+        placeholder="Your nickname"
+        size="11"
+        value={nickname}
+        onChange={(e) => setNickname(e.target.value)}
+      />
+      <input
+        placeholder="Type your message"
+        size="40"
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+      />
+      <button onClick={sendMessage}>Send</button>
     </div>
   );
 }
